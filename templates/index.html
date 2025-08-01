@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Camera Dashboard</title>
+    <title>Raspberry Pi Camera Monitor</title>
 </head>
 <body>
-    <h1>Live Camera Monitor</h1>
-    <img src="{{ url_for('video_feed') }}" width="640" height="480">
-    <br><br>
+    <h2>Live CSI Camera Feed</h2>
+    <img src="{{ url_for('video_feed') }}" width="640" height="480"><br><br>
     <button onclick="fetch('/start_recording')">Start Recording</button>
     <button onclick="fetch('/stop_recording')">Stop Recording</button>
 </body>
