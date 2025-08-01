@@ -4,6 +4,8 @@ import threading
 import time
 import cv2
 import os
+from flask import send_from_directory
+import glob
 
 app = Flask(__name__)
 picam2 = Picamera2()
@@ -67,5 +69,14 @@ def stop_recording():
         writer = None
     return "Recording stopped"
 
+@app.route('/recordings')
+def list_recordings():
+    files = sorted(glob.glob('recordings/*.mp4'), reverse=True)
+    filenames = [os.path.basename(f) for f in files]
+    return render_template('recordings.html', files=filenames)
+
+@app.route('/recordings/<filename>')
+def serve_video(filename):
+    return send_from_directory('recordings', filename)
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
