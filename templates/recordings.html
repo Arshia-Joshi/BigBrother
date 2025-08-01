@@ -1,28 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Recorded Videos</title>
+    <title>Recordings</title>
 </head>
 <body>
-    <h2>Available Recordings</h2>
-    {% if files %}
-        <ul>
-        {% for file in files %}
-            <li>
-                <strong>{{ file }}</strong><br>
-                <video width="480" height="320" controls>
-                    <source src="{{ url_for('serve_video', filename=file) }}" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-                <br><a href="{{ url_for('serve_video', filename=file) }}" download>Download</a>
-            </li>
-            <hr>
-        {% endfor %}
-        </ul>
-    {% else %}
-        <p>No recordings found.</p>
-    {% endif %}
-
-    <br><a href="/">Back to Live View</a>
+    <h1>Recorded Videos</h1>
+    {% for file in files %}
+        <div>
+            <h3>{{ file }}</h3>
+            <video width="480" height="360" controls>
+                <source src="{{ url_for('serve_video', filename=file) }}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+        <hr>
+    {% endfor %}
+    <a href="/">Back to Home</a>
 </body>
 </html>
