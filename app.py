@@ -1,11 +1,11 @@
-from flask import Flask, render_template, Response
+from flask import Flask, render_template, Response, request, abort
 from picamera2 import Picamera2
 import threading
 import time
 import cv2
 import os
-from flask import send_from_directory
 import glob
+import re
 
 app = Flask(__name__)
 picam2 = Picamera2()
@@ -77,6 +77,34 @@ def list_recordings():
 
 @app.route('/recordings/<filename>')
 def serve_video(filename):
-    return send_from_directory('recordings', filename)
+    file_path = os.path.join('recordings', filename)
+    if not os.path.isfile(file_path):
+        abort(404)
+
+    range_header = request.headers.get('Range', None)
+    if not range_header:
+        return Response(open(file_path, 'rb'), mimetype='video/mp4')
+
+    size = os.path.getsize(file_path)
+    byte1, byte2 = 0, None
+
+    match = re.search(r'bytes=(\d+)-(\d*)', range_header)
+    if match:
+        byte1 = int(match.group(1))
+        if match.group(2):
+            byte2 = int(match.group(2))
+
+    byte2 = byte2 if byte2 is not None else size - 1
+    length = byte2 - byte1 + 1
+
+    with open(file_path, 'rb') as f:
+        f.seek(byte1)
+        data = f.read(length)
+
+    resp = Response(data, 206, mimetype='video/mp4', content_type='video/mp4')
+    resp.headers.add('Content-Range', f'bytes {byte1}-{byte2}/{size}')
+    resp.headers.add('Accept-Ranges', 'bytes')
+    return resp
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
